@@ -86,27 +86,54 @@ public class PublicationService implements IService<Publication> {
     }
     @Override
     public void update(Publication publication) {
+        // Vérification initiale des paramètres
         if (publication == null) {
-            System.err.println("Erreur : La publication ne peut pas être null.");
+            System.err.println("Erreur : La publication à mettre à jour ne peut pas être null.");
+            return;
+        }
+        if (publication.getId() <= 0) {
+            System.err.println("Erreur : L'ID de la publication est invalide.");
             return;
         }
 
         String sql = "UPDATE publication SET titre = ?, description = ?, type_id = ?, image = ?, user_id = ? WHERE id = ?";
+
         try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            // Préparer les paramètres de la requête
             preparedStatement.setString(1, publication.getTitre());
             preparedStatement.setString(2, publication.getDescription());
-            preparedStatement.setInt(3, getTypeId(publication.getType())); // Récupération dynamique de l'ID
+
+            // Conversion dynamique du type en ID
+            int typeId = getTypeId(publication.getType());
+            if (typeId <= 0) {
+                System.err.println("Erreur : Type de publication invalide ou non trouvé.");
+                return;
+            }
+            preparedStatement.setInt(3, typeId);
+
+            // Gestion de l'image (peut être null)
             preparedStatement.setBytes(4, publication.getImage());
+
+            // ID de l'utilisateur affecté
             preparedStatement.setInt(5, publication.getUserId());
+
+            // ID de la publication (condition WHERE)
             preparedStatement.setInt(6, publication.getId());
 
-            preparedStatement.executeUpdate();
+            // Exécution de la mise à jour
+            int rowsUpdated = preparedStatement.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Mise à jour réussie : La publication avec ID " + publication.getId() + " a été mise à jour.");
+            } else {
+                System.err.println("Aucune publication mise à jour. Vérifiez que l'ID existe dans la base de données.");
+            }
+
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la mise à jour de la publication : " + e.getMessage());
-            e.printStackTrace();
+            // Gestion des erreurs SQL détaillée
+            System.err.println("Erreur SQL lors de la mise à jour de la publication : " + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
-
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM publication WHERE id = ?";

@@ -45,6 +45,7 @@ public class OrganisateurDashboard {
         try {
             loadContent("/MesPublications.fxml");
         } catch (IOException e) {
+
             System.err.println("Erreur lors du chargement de la vue MesPublications : " + e.getMessage());
         }
     }

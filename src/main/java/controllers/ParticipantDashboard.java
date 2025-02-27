@@ -63,7 +63,7 @@ public class ParticipantDashboard {
     private void handleMyPublications() throws IOException {
         currentActiveButton = myPublicationsButton;
         updateButtonStyles();
-        loadContent("/MesPublicationsParticipant.fxml"); // Vue pour mes publications
+        loadContent("/MesPublications.fxml"); // Vue pour mes publications
     }
 
     @FXML

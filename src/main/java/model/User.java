@@ -73,6 +73,9 @@ public class User {
     public boolean isOrganisateur() {
         return this.role_user == Role.ORGANISATEUR;
     }
+    public boolean isParticipant() {
+        return this.role_user == Role.PARTICIPANT;
+    }
 
     public int getAge_user() {
         return age_user;

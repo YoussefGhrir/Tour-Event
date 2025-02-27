@@ -1,7 +1,98 @@
-/* Class pour les icônes */
-.icon {
-    -fx-font-size: 18px;  /* Taille des icônes */
-    -fx-fill: white;      /* Couleur par défaut */
+/* Conteneur principal pour les cartes */
+.tile-pane {
+    -fx-padding: 20;
+    -fx-background-color: #f9f9f9;
 }
 
-/* Modifier la taille ou les couleurs pour correspondre à vos besoins */
+/* Carte individuelle */
+.card {
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 10; /* Unifié à 10px */
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f9f9f9); /* Dégradé léger */
+    -fx-background-radius: 10;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 4, 0, 0, 2); /* Ombrage adouci */
+    -fx-padding: 15;
+}
+
+.card:hover {
+    -fx-background-color: #F0F8FF; /* Survol : changement de couleur */
+    -fx-border-color: #1E90FF; /* Bordure bleue lors du survol */
+}
+
+/* Titre de la carte */
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E90FF;
+}
+
+/* Description de la carte */
+.card-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+/* Type d'information dans la carte */
+.card-type {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3498db; /* Bleu pour le type */
+}
+
+/* Bouton dans la carte */
+.card-button {
+    -fx-background-color: #4CAF50; /* Vert principal */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-padding: 5 10;
+}
+
+.card-button:hover {
+    -fx-background-color: #45A049;
+}
+
+/* Conteneur principal pour une modal */
+.modal-content {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 10;
+    -fx-padding: 20;
+}
+
+/* Titre de la modal */
+.modal-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Nom de l'auteur dans la modal */
+.modal-author {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3498db;
+}
+
+/* Date dans la modal */
+.modal-date {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: right;
+}
+
+/* Type dans la modal */
+.modal-type {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3498db;
+}
+
+/* Description dans la modal */
+.modal-description {
+    -fx-font-size: 16px;
+    -fx-text-fill: #7f8c8d;
+}

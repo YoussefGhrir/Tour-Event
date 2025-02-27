@@ -19,4 +19,12 @@ public class SessionManager {
     public static void clearSession() {
         currentUser = null;
     }
+    // Nouvelle méthode : Récupérer l'ID de l'utilisateur connecté
+    public static int getCurrentUserId() {
+        if (currentUser != null) {
+            return currentUser.getId_user(); // Nom du getter pour l'ID. Ajustez selon votre classe `User`.
+        }
+        throw new IllegalStateException("Aucun utilisateur connecté.");
+    }
+
 }
