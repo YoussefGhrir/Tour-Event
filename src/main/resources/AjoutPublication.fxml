@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CreatePublicationController">
+    <VBox spacing="10">
+        <Label text="Titre" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="titreField"/>
+
+        <Label text="Description" style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="descriptionField" prefHeight="100"/>
+
+        <Label text="Type de Publication" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="typeComboBox"/>
+
+        <Label text="Image" style="-fx-font-weight: bold;"/>
+        <Button text="Choisir une image" onAction="#handleImageSelection"/>
+
+        <Label text="Rechercher un parking" style="-fx-font-weight: bold;" visible="false"/>
+        <TextField fx:id="searchParkingField" visible="false"/>
+
+        <Label text="Parking" style="-fx-font-weight: bold;" visible="false"/>
+        <ComboBox fx:id="parkingComboBox" visible="false"/>
+
+        <Button text="Créer Publication" onAction="#handleCreatePublication" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+    </VBox>
+</AnchorPane>

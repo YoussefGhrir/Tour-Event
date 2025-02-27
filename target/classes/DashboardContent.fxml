@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.DashboardContent"
+            prefHeight="600.0" prefWidth="750.0">
+
+    <VBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" style="-fx-padding: 30;">
+        <!-- Title Section -->
+        <Label fx:id="titleLabel" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #333;" text="Dashboard Admin" />
+    </VBox>
+</AnchorPane>

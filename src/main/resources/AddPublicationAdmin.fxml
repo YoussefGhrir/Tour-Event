@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+
+<AnchorPane prefHeight="500.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom right, #f5f5f5, #e8f5e9);" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AddPublicationAdminController">
+    <children>
+        <!-- Header avec titre -->
+        <HBox layoutX="0.0" prefHeight="60.0" prefWidth="800.0" style="-fx-background-color: #4CAF50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+            <children>
+                <Label style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 15;" text="Ajouter une publication (Admin)" />
+            </children>
+        </HBox>
+
+        <!-- Contenu principal -->
+        <VBox layoutX="50.0" layoutY="80.0" prefWidth="700.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+            <padding>
+                <Insets bottom="25.0" left="25.0" right="25.0" top="15.0" />
+            </padding>
+
+            <ScrollPane prefWidth="700.0" prefHeight="500.0" style="-fx-background-color: transparent;">
+                <VBox spacing="10" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 0);">
+                    <!-- Titre -->
+                    <Label text="Titre" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                    <TextField fx:id="titreField" promptText="Entrez le titre de la publication" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-padding: 8;"/>
+                    <Label fx:id="titreErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                    <!-- Description -->
+                    <Label text="Description" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                    <TextArea fx:id="descriptionField" promptText="Entrez la description de la publication" prefHeight="80" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-padding: 8;"/>
+                    <Label fx:id="descriptionErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                    <!-- Type de publication -->
+                    <Label text="Type de publication" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                    <ComboBox fx:id="typeComboBox" promptText="Sélectionnez le type de publication" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0;"/>
+                    <Label fx:id="typeErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                    <!-- Section Parking (visible uniquement pour le type Parking) -->
+                    <VBox fx:id="parkingSection" visible="false" spacing="5">
+                        <Label text="Parking" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                        <ComboBox fx:id="parkingComboBox" promptText="Sélectionnez un parking" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0;"/>
+                        <Label fx:id="parkingErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+                        <TextField fx:id="searchParkingField" promptText="Rechercher un parking" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0;"/>
+                    </VBox>
+
+                    <!-- Image -->
+                    <Label text="Image" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                    <VBox spacing="5">
+                        <Button text="Choisir une image" onAction="#handleAddImage" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 20;"/>
+                        <Label fx:id="imageLabel" text="Glissez-déposez une image ici" style="-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-padding: 10px; -fx-alignment: center;"/>
+                        <ImageView fx:id="imageView" fitWidth="150" fitHeight="150" preserveRatio="true"/>
+                        <Label fx:id="imageErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+                    </VBox>
+
+                    <!-- Bouton Ajouter la publication -->
+                    <Button text="Ajouter la publication" onAction="#handleAddPublication" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 5; -fx-padding: 10 20;"/>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </children>
+</AnchorPane>

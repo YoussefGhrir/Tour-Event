@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane prefHeight="800.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #ddffe0);" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Register">
+    <children>
+        <VBox alignment="TOP_CENTER" layoutX="150.0" layoutY="20.0" prefWidth="500.0" spacing="20.0">
+            <!-- Logo -->
+            <ImageView fitHeight="120.0" fitWidth="225.0" preserveRatio="true">
+                <image>
+                    <Image url="@/images/logo.png" />
+                </image>
+            </ImageView>
+
+            <!-- Titre -->
+            <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Inscription" />
+
+            <!-- Zone d'inscription -->
+            <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
+                <padding>
+                    <Insets bottom="30" left="30" right="30" top="30" />
+                </padding>
+
+                <!-- Informations personnelles -->
+                <HBox spacing="20">
+                    <VBox spacing="15" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold;" text="Nom" />
+                        <TextField fx:id="nomField" prefHeight="40.0" promptText="Entrez votre nom"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+
+                        <Label style="-fx-font-weight: bold;" text="Prénom" />
+                        <TextField fx:id="prenomField" prefHeight="40.0" promptText="Entrez votre prénom"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+
+                        <Label style="-fx-font-weight: bold;" text="Âge" />
+                        <TextField fx:id="ageField" prefHeight="40.0" promptText="18"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+                    </VBox>
+
+                    <VBox spacing="15" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold;" text="Email" />
+                        <TextField fx:id="emailField" prefHeight="40.0" promptText="exemple@domaine.com"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+
+                        <Label style="-fx-font-weight: bold;" text="Numéro de téléphone" />
+                        <TextField fx:id="teleField" prefHeight="40.0" promptText="8 chiffres"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+
+                        <Label style="-fx-font-weight: bold;" text="Rôle" />
+                        <ComboBox fx:id="roleComboBox" prefHeight="40.0" prefWidth="150.0" promptText="Sélectionner"
+                                  style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="15">
+                    <Label style="-fx-font-weight: bold;" text="Mot de passe" />
+                    <PasswordField fx:id="passwordField" prefHeight="40.0" promptText="Minimum 8 caractères"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+
+                    <Label style="-fx-font-weight: bold;" text="Confirmation du mot de passe" />
+                    <PasswordField fx:id="confirmPasswordField" prefHeight="40.0" promptText="Confirmation"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-border-width: 1;" />
+                </VBox>
+
+                <!-- Message d'erreur -->
+                <Label fx:id="errorLabel" style="-fx-text-fill: #ff0000;" visible="false" wrapText="true" />
+
+                <!-- Bouton d'inscription -->
+                <Button onAction="#handleRegister" prefHeight="40.0" prefWidth="440.0"
+                        style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
+                        text="S'INSCRIRE">
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </Button>
+            </VBox>
+
+            <!-- Lien retour -->
+            <Hyperlink fx:id="loginLink" onAction="#handleLogin"
+                       style="-fx-text-fill: #4CAF50;"
+                       text="Déjà inscrit ? Connectez-vous" />
+        </VBox>
+    </children>
+</AnchorPane>

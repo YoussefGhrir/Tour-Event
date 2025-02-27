@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.DetailsUser">
+    <children>
+        <VBox spacing="15.0" prefWidth="600.0" style="-fx-padding: 20;">
+            <!-- Header -->
+            <Label text="Détails Utilisateur" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+
+            <!-- Form Grid -->
+            <GridPane hgap="10.0" vgap="15.0">
+                <columnConstraints>
+                    <ColumnConstraints prefWidth="150.0" />
+                    <ColumnConstraints prefWidth="300.0" />
+                </columnConstraints>
+
+                <children>
+                    <Label text="Nom:" GridPane.rowIndex="0" />
+                    <TextField fx:id="nomField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                    <Label text="Prénom:" GridPane.rowIndex="1" />
+                    <TextField fx:id="prenomField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label text="Email:" GridPane.rowIndex="2" />
+                    <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label text="Téléphone:" GridPane.rowIndex="3" />
+                    <TextField fx:id="teleField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label text="Âge:" GridPane.rowIndex="4" />
+                    <TextField fx:id="ageField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label text="Rôle:" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleCombo" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                </children>
+            </GridPane>
+
+            <!-- Actions -->
+            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                <Button text="Enregistrer" onAction="#handleSave" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10 20;" />
+                <Button text="Annuler" onAction="#handleCancel" style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10 20;" />
+            </HBox>
+
+            <!-- Error Message -->
+            <Label fx:id="errorLabel" style="-fx-text-fill: #d32f2f;" visible="false" />
+        </VBox>
+    </children>
+</AnchorPane>

@@ -1,0 +1,7 @@
+/* Class pour les icônes */
+.icon {
+    -fx-font-size: 18px;  /* Taille des icônes */
+    -fx-fill: white;      /* Couleur par défaut */
+}
+
+/* Modifier la taille ou les couleurs pour correspondre à vos besoins */
