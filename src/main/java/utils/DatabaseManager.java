@@ -46,13 +46,13 @@ public class DatabaseManager {
             String createUserTable = """
             CREATE TABLE IF NOT EXISTS user (
                 id_user INT PRIMARY KEY AUTO_INCREMENT,
-                    nom_user VARCHAR(100) NOT NULL,
-                    prenom_user VARCHAR(100) NOT NULL,
-                    age_user INT,
-                    role_user ENUM('ADMIN', 'ORGANISATEUR', 'PARTICIPANT') NOT NULL,
-                    mail_user VARCHAR(255) NOT NULL UNIQUE,
-                    password_user VARCHAR(255) NOT NULL,
-                    tele_user VARCHAR(20)
+                nom_user VARCHAR(100) NOT NULL,
+                prenom_user VARCHAR(100) NOT NULL,
+                age_user INT,
+                role_user ENUM('ADMIN', 'ORGANISATEUR', 'PARTICIPANT') NOT NULL,
+                mail_user VARCHAR(255) NOT NULL UNIQUE,
+                password_user VARCHAR(255) NOT NULL,
+                tele_user VARCHAR(20)
             );
             """;
             stmt.execute(createUserTable);
@@ -83,22 +83,35 @@ public class DatabaseManager {
 
             // Création de la table Publication
             String createPublicationTable = """
-            
-                    CREATE TABLE IF NOT EXISTS publication (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    titre VARCHAR(100) NOT NULL,
-                    description TEXT NOT NULL,
-                    type_id INT NOT NULL,
-                    image LONGBLOB,
-                    parking_id INT,
-                    user_id INT NOT NULL,\s
-                    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (type_id) REFERENCES publication_type(id_type) ON DELETE CASCADE,
-                    FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE,
-                    FOREIGN KEY (parking_id) REFERENCES parking(idpark) ON DELETE SET NULL
-                );
+            CREATE TABLE IF NOT EXISTS publication (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                titre VARCHAR(100) NOT NULL,
+                description TEXT NOT NULL,
+                type_id INT NOT NULL,
+                image LONGBLOB,
+                parking_id INT,
+                user_id INT NOT NULL,
+                date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (type_id) REFERENCES publication_type(id_type) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE,
+                FOREIGN KEY (parking_id) REFERENCES parking(idpark) ON DELETE SET NULL
+            );
             """;
             stmt.execute(createPublicationTable);
+
+            // Création de la table Comment
+            String createCommentTable = """
+            CREATE TABLE IF NOT EXISTS comment (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                publication_id INT NOT NULL,
+                user_id INT NOT NULL,
+                content TEXT NOT NULL,
+                date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (publication_id) REFERENCES publication(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE
+            );
+            """;
+            stmt.execute(createCommentTable);
 
             System.out.println("Tables créées ou déjà existantes.");
         } catch (SQLException e) {
@@ -106,6 +119,7 @@ public class DatabaseManager {
         }
     }
 
+    // Insertion des parkings d'exemple
     private void insertSampleParkings() {
         String[] parkingNames = {"Parking A", "Parking B", "Parking C", "Parking D", "Parking E"};
 

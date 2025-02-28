@@ -9,7 +9,7 @@ public class Publication {
     private String description;
     private PublicationType type;
     private byte[] image; // Stocker l'image sous forme binaire
-    private int parkingId;
+    private Integer parkingId; // Remplacé par Integer pour permettre la gestion de null
     private int userId;
     private LocalDateTime dateCreation;
 
@@ -18,7 +18,7 @@ public class Publication {
         this.dateCreation = LocalDateTime.now();
     }
 
-    public Publication(int id, String titre, String description, PublicationType type, byte[] image, int parkingId, int userId) {
+    public Publication(int id, String titre, String description, PublicationType type, byte[] image, Integer parkingId, int userId) {
         this.id = id;
         this.titre = titre;
         this.description = description;
@@ -28,6 +28,7 @@ public class Publication {
         this.userId = userId;
         this.dateCreation = LocalDateTime.now();
     }
+
     // Constructeur pour un post normal (tous les utilisateurs)
     public Publication(String titre, String description, byte[] image, int userId) {
         this.titre = titre;
@@ -39,7 +40,7 @@ public class Publication {
     }
 
     // Constructeur pour un post de type parking (Admin et Organisateur)
-    public Publication(String titre, String description, byte[] image, int userId, int parkingId) {
+    public Publication(String titre, String description, byte[] image, int userId, Integer parkingId) {
         this(titre, description, image, userId); // Appel du constructeur de base
         this.parkingId = parkingId;
         this.type = PublicationType.PARKING; // Type de post : parking
@@ -104,14 +105,13 @@ public class Publication {
         this.image = image;
     }
 
-    public int getParkingId() {
+    public Integer getParkingId() {
         return parkingId; // ID du parking associé à cette publication
     }
 
-    public void setParkingId(int parkingId) {
+    public void setParkingId(Integer parkingId) {
         this.parkingId = parkingId; // Lien vers le parking
     }
-
 
     public int getUserId() {
         return userId; // ID de l'utilisateur qui a créé la publication
