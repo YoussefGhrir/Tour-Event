@@ -158,6 +158,7 @@ public class ToutesPublicationsController {
 
         return starBox;
     }
+
     private void openPublicationDetails(Publication publication) {
         Stage modal = new Stage();
         modal.initModality(Modality.APPLICATION_MODAL);
@@ -242,11 +243,8 @@ public class ToutesPublicationsController {
         commentsContainer.setSpacing(10);
         commentsContainer.setStyle("-fx-background-color: #f9f9f9; -fx-border-color: #d3d3d3; -fx-border-width: 1;");
 
-        List<Comment> comments = commentService.getCommentsByPublicationId(publication.getId());
-        for (Comment comment : comments) {
-            VBox commentBox = createCommentBox(comment, commentsContainer);
-            commentsContainer.getChildren().add(commentBox);
-        }
+        // Charger les commentaires initiaux
+        refreshCommentsInModal(commentsContainer, publication.getId());
 
         // Wrapping commentsContainer dans un ScrollPane
         ScrollPane commentsScrollPane = new ScrollPane(commentsContainer);
@@ -266,11 +264,10 @@ public class ToutesPublicationsController {
             if (!content.isEmpty()) {
                 Comment newComment = new Comment(publication.getId(), currentUserId, content);
                 commentService.addComment(newComment);
-                VBox newCommentBox = createCommentBox(newComment, commentsContainer);
-                commentsContainer.getChildren().add(newCommentBox);
                 commentField.clear();
 
-                refreshPublications(); // Actualise les publications après un ajout
+                // Rafraîchir les commentaires dans la modale
+                refreshCommentsInModal(commentsContainer, publication.getId());
             }
         });
         addCommentBox.getChildren().addAll(commentField, addCommentButton);
@@ -536,6 +533,7 @@ public class ToutesPublicationsController {
         }
         return "Date inconnue";
     }
+
     private void openEditCommentModal(Comment comment, Text commentContent) {
         // Créer une fenêtre modale
         Stage editModal = new Stage();
@@ -594,17 +592,13 @@ public class ToutesPublicationsController {
             System.err.println("Erreur de rafraîchissement : " + e.getMessage());
         }
     }
-    private void refreshCommentsForPublication(int publicationId, VBox commentsContainer) {
-        // Nettoyer le conteneur des commentaires existants
-        commentsContainer.getChildren().clear();
-
-        // Obtenir les commentaires mis à jour pour la publication
-        List<Comment> comments = commentService.getCommentsByPublicationId(publicationId);
-
-        // Recréer chaque commentaire dans le conteneur
+    private void refreshCommentsInModal(VBox commentsContainer, int publicationId) {
+        commentsContainer.getChildren().clear(); // Nettoyer le conteneur des commentaires existants
+        List<Comment> comments = commentService.getCommentsByPublicationId(publicationId); // Récupérer les nouveaux commentaires
         for (Comment comment : comments) {
-            VBox commentBox = createCommentBox(comment, commentsContainer);
+            VBox commentBox = createCommentBox(comment, commentsContainer); // Recréer chaque commentaire
             commentsContainer.getChildren().add(commentBox);
         }
     }
+
 }
