@@ -63,6 +63,7 @@ public class Publication {
         }
         this.type = PublicationType.COVOITURAGE; // Type de post : covoiturage
     }
+    private String userFullName;
 
     // Getters et Setters
     public int getId() {
@@ -128,4 +129,6 @@ public class Publication {
     public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
+
+
 }

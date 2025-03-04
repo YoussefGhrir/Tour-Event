@@ -89,4 +89,13 @@ public class ParticipantDashboard {
             e.printStackTrace();
         }
     }
+    @FXML
+    private Button allPublicationsButton; // Bouton pour afficher toutes les publications
+
+    @FXML
+    private void handleAllPublications() throws IOException {
+        currentActiveButton = allPublicationsButton;
+        updateButtonStyles();
+        loadContent("/ToutesPublications.fxml"); // Charger la vue Toutes les Publications
+    }
 }

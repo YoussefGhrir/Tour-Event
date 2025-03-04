@@ -40,7 +40,13 @@
                         <FontIcon iconLiteral="fas-list" styleClass="icon" />
                     </graphic>
                 </Button>
-
+                <Button fx:id="allPublicationsButton" text="Toutes les Publications" onAction="#handleAllPublications"
+                        prefHeight="40.0" prefWidth="180.0"
+                        style="-fx-background-color: transparent; -fx-border-color: #ccc; -fx-border-radius: 8; -fx-text-fill: #333; -fx-font-weight: bold;">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-globe" styleClass="icon" />
+                    </graphic>
+                </Button>
                 <Button fx:id="logoutButton" text="Déconnexion" onAction="#handleLogout" prefHeight="40.0" prefWidth="150.0"
                         style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;">
                     <graphic>
