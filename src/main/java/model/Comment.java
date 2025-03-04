@@ -9,15 +9,24 @@ public class Comment {
     private int userId;
     private String content;
     private LocalDateTime datePosted;
+    private boolean isReported;
+    private String reportReason; // Raison du signalement
 
-    public Comment() {}
+
+    public Comment() {
+        this.isReported = false; // Par défaut, le commentaire n’est pas signalé
+        this.reportReason = "";
+    }
 
     public Comment(int publicationId, int userId, String content) {
         this.publicationId = publicationId;
         this.userId = userId;
         this.content = content;
         this.datePosted = LocalDateTime.now();
+        this.isReported = false;
+        this.reportReason = "";
     }
+
 
     // Getters et Setters
     public int getId() {
@@ -59,4 +68,20 @@ public class Comment {
     public void setDatePosted(LocalDateTime datePosted) {
         this.datePosted = datePosted;
     }
+    public boolean isReported() {
+        return isReported;
+    }
+
+    public void setReported(boolean reported) {
+        isReported = reported;
+    }
+
+    public String getReportReason() {
+        return reportReason;
+    }
+
+    public void setReportReason(String reportReason) {
+        this.reportReason = reportReason;
+    }
+
 }

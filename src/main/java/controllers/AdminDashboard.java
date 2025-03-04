@@ -53,22 +53,16 @@ public class AdminDashboard {
         }
     }
 
-    private void updateButtonStyles() {
-        String defaultStyle = "-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; " +
-                "-fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;";
-        String activeStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; " +
-                "-fx-background-radius: 5;";
 
-        dashboardButton.setStyle(defaultStyle);
-        viewUsersButton.setStyle(defaultStyle);
-        addUserButton.setStyle(defaultStyle);
-        viewFeedbackButton.setStyle(defaultStyle);
+    @FXML
+    private Button viewReportedCommentsButton;
 
-        if (currentActiveButton != null) {
-            currentActiveButton.setStyle(activeStyle);
-        }
+    @FXML
+    public void handleViewReportedComments() throws IOException {
+        currentActiveButton = viewReportedCommentsButton;
+        updateButtonStyles();
+        loadContent("/ReportedCommentsView.fxml"); // Charger la vue dédiée aux commentaires signalés
     }
-
     @FXML
     private void handleDashboard() throws IOException {
         currentActiveButton = dashboardButton;
@@ -139,6 +133,22 @@ public class AdminDashboard {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    private void updateButtonStyles() {
+        String defaultStyle = "-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; " +
+                "-fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;";
+        String activeStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; " +
+                "-fx-background-radius: 5;";
+
+        dashboardButton.setStyle(defaultStyle);
+        viewUsersButton.setStyle(defaultStyle);
+        addUserButton.setStyle(defaultStyle);
+        viewFeedbackButton.setStyle(defaultStyle);
+        viewReportedCommentsButton.setStyle(defaultStyle); // Ajout du bouton signalé
+
+        if (currentActiveButton != null) {
+            currentActiveButton.setStyle(activeStyle);
         }
     }
 }

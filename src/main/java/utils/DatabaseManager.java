@@ -108,6 +108,8 @@ public class DatabaseManager {
                 user_id INT NOT NULL,
                 content TEXT NOT NULL,
                 date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_reported BOOLEAN DEFAULT FALSE,
+                report_reason VARCHAR(255),
                 FOREIGN KEY (publication_id) REFERENCES publication(id) ON DELETE CASCADE,
                 FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE
             );

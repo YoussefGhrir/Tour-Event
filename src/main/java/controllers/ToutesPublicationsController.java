@@ -28,6 +28,7 @@ import service.UserService;
 import utils.SessionManager;
 
 import java.io.ByteArrayInputStream;
+import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -205,8 +206,7 @@ public class ToutesPublicationsController {
         Scene scene = new Scene(modalContent, 500, 700);
         modal.setScene(scene);
         modal.showAndWait();
-    }
-    private VBox createCommentBox(Comment comment, VBox commentsContainer) {
+    }private VBox createCommentBox(Comment comment, VBox commentsContainer) {
         VBox commentBox = new VBox();
         commentBox.setSpacing(5);
         commentBox.setPadding(new Insets(10));
@@ -227,6 +227,11 @@ public class ToutesPublicationsController {
         commentContent.setFont(Font.font("Arial", 12));
         commentContent.setWrappingWidth(500); // Ajuster la largeur maximale
 
+        // Bouton Signaler
+        Button reportButton = new Button("Signaler");
+        reportButton.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;");
+        reportButton.setOnAction(event -> openReportModal(comment));
+
         // Réactions existantes (totals uniquement)
         Map<String, Integer> reactions = commentService.getReactionsByCommentId(comment.getId()); // Charge le total des réactions
         HBox reactionTotalsBox = new HBox();
@@ -240,11 +245,6 @@ public class ToutesPublicationsController {
                 reactionTotalsBox.getChildren().add(reactionLabel);
             }
         }
-
-        // Ajouter le bouton "Voir réactions"
-        Button viewReactionsButton = new Button("Voir réactions");
-        viewReactionsButton.setStyle("-fx-font-size: 12px;");
-        viewReactionsButton.setOnAction(event -> openReactionDetailsModal(comment));
 
         // Ajouter des boutons de réaction (émojis)
         HBox reactionButtons = new HBox(10);
@@ -288,49 +288,51 @@ public class ToutesPublicationsController {
         }
 
         // Ajouter tous les éléments dans le conteneur de commentaire
-        commentBox.getChildren().addAll(usernameLabel, commentDate, commentContent, reactionTotalsBox, reactionButtons, viewReactionsButton);
+        commentBox.getChildren().addAll(usernameLabel, commentDate, commentContent, reactionTotalsBox, reactionButtons, reportButton);
 
         return commentBox;
     }
-    private void openReactionDetailsModal(Comment comment) {
-        // Définir le commentaire sur lequel la modale va se concentrer
-        currentReactionsModalComment = comment;
-
-        // Créer une nouvelle fenêtre modale
-        Stage modal = new Stage();
-        modal.initModality(Modality.APPLICATION_MODAL);
-        modal.setTitle("Réactions sur ce commentaire");
+    private void openReportModal(Comment comment) {
+        Stage reportModal = new Stage();
+        reportModal.initModality(Modality.APPLICATION_MODAL);
+        reportModal.setTitle("Signaler un commentaire");
 
         VBox modalContent = new VBox();
         modalContent.setSpacing(10);
         modalContent.setPadding(new Insets(20));
+        modalContent.setStyle("-fx-background-color: #f9f9f9;");
 
-        // Titre de la modale
-        Label headerLabel = new Label("Détails des réactions pour ce commentaire");
-        headerLabel.setFont(Font.font("Arial", 18));
-        headerLabel.setTextFill(Color.DARKBLUE);
+        Label instructionLabel = new Label("Veuillez indiquer un motif de signalement :");
+        instructionLabel.setFont(Font.font("Arial", 14));
+        instructionLabel.setTextFill(Color.BLACK);
 
-        // Conteneur pour la liste des utilisateurs ayant réagi
-        currentReactionsModalContent = new VBox(); // Assigner le conteneur à la variable globale
-        currentReactionsModalContent.setSpacing(10);
-        currentReactionsModalContent.setStyle("-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        TextField reasonField = new TextField();
+        reasonField.setPromptText("Entrez votre motif ici...");
 
-        // Charger les réactions initiales
-        refreshReactionsContainer(currentReactionsModalContent, comment);
+        Button submitButton = new Button("Envoyer");
+        submitButton.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;");
 
-        // Bouton pour fermer la fenêtre
-        Button closeButton = new Button("Fermer");
-        closeButton.setOnAction(event -> {
-            modal.close();
-            currentReactionsModalComment = null; // Réinitialiser la variable après fermeture
-            currentReactionsModalContent = null; // Réinitialiser le conteneur
+        submitButton.setOnAction(event -> {
+            String reason = reasonField.getText().trim();
+            if (!reason.isEmpty()) {
+                try {
+                    // Signalement du commentaire via le service
+                    commentService.reportComment(comment.getId(), reason);
+                    System.out.println("Commentaire signalé : " + reason);
+
+                    // Fermer la fenêtre modale après le signalement
+                    reportModal.close();
+                } catch (SQLException e) {
+                    System.err.println("Erreur lors du signalement : " + e.getMessage());
+                }
+            }
         });
 
-        modalContent.getChildren().addAll(headerLabel, currentReactionsModalContent, closeButton);
+        modalContent.getChildren().addAll(instructionLabel, reasonField, submitButton);
 
-        Scene modalScene = new Scene(modalContent, 400, 300); // Taille de la modale
-        modal.setScene(modalScene);
-        modal.show();
+        Scene scene = new Scene(modalContent, 300, 200);
+        reportModal.setScene(scene);
+        reportModal.showAndWait();
     }
     private Button createReactionButton(String emoji, String reactionType, Comment comment, HBox reactionTotalsBox) {
         Button reactionButton = new Button(emoji);

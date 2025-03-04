@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ReportedCommentsController">
+    <children>
+        <TableView fx:id="reportedCommentsTable" layoutX="20.0" layoutY="20.0" prefHeight="400.0" prefWidth="600.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
+                <TableColumn fx:id="contentColumn" prefWidth="200.0" text="Commentaire" />
+                <TableColumn fx:id="reasonColumn" prefWidth="200.0" text="Motif" />
+                <TableColumn fx:id="actionColumn" prefWidth="150.0" text="Actions" />
+            </columns>
+        </TableView>
+
+        <Button fx:id="refreshButton" layoutX="20.0" layoutY="450.0" text="Rafraîchir" onAction="#refreshTable"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" />
+    </children>
+</AnchorPane>

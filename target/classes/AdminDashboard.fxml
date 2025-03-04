@@ -39,6 +39,9 @@
                 <Button fx:id="viewFeedbackButton" onAction="#handleViewFeedback" prefHeight="40.0" prefWidth="210.0"
                         style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
                         text="Liste des Feedbacks" />
+                <Button fx:id="viewReportedCommentsButton" onAction="#handleViewReportedComments" prefHeight="40.0" prefWidth="210.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
+                        text="Commentaires signalés" />
             </VBox>
 
             <VBox spacing="10" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
