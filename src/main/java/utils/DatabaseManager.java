@@ -128,6 +128,20 @@ public class DatabaseManager {
                             "FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE" + // Lien avec la table user
                             ")"
             );
+            // Création de la table PublicationRating
+            String createPublicationRatingTable = """
+CREATE TABLE IF NOT EXISTS publication_rating (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    publication_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    UNIQUE (user_id, publication_id), -- Un utilisateur ne peut évaluer une publication qu'une seule fois
+    FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (publication_id) REFERENCES publication(id) ON DELETE CASCADE
+);
+""";
+            stmt.execute(createPublicationRatingTable);
+
 
             System.out.println("Tables créées ou déjà existantes.");
         } catch (SQLException e) {

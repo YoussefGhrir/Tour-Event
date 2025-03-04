@@ -2,6 +2,7 @@ package controllers;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,6 +24,7 @@ import model.CommentReaction;
 import model.Publication;
 import model.User;
 import service.CommentService;
+import service.PublicationRatingService;
 import service.PublicationService;
 import service.UserService;
 import utils.SessionManager;
@@ -86,13 +88,7 @@ public class ToutesPublicationsController {
         VBox card = new VBox();
         card.setSpacing(10);
         card.setPadding(new Insets(15));
-        card.setStyle(
-                "-fx-background-color: #f9f9f9; " +
-                        "-fx-border-radius: 10; " +
-                        "-fx-background-radius: 10; " +
-                        "-fx-border-color: #cccccc; " +
-                        "-fx-border-width: 1;"
-        );
+        card.setStyle("-fx-background-color: #f9f9f9; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: #cccccc; -fx-border-width: 1;");
 
         ImageView imageView = new ImageView();
         if (publication.getImage() != null) {
@@ -111,11 +107,56 @@ public class ToutesPublicationsController {
         descriptionText.setFont(Font.font("Arial", 14));
         descriptionText.setFill(Color.web("#666666"));
 
+        // Gestion des notes avec étoiles
+        PublicationRatingService ratingService = new PublicationRatingService();
+        float averageRating = 0.0f;
+        int totalVotes = 0;
+
+        try {
+            averageRating = ratingService.getAverageRating(publication.getId());
+            totalVotes = ratingService.getTotalVotes(publication.getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Création de l'affichage des étoiles
+        HBox starsBox = createStarDisplay(averageRating);
+
+        Label votesLabel = new Label(" (" + totalVotes + " votes)");
+        votesLabel.setFont(Font.font("Arial", 12));
+        votesLabel.setTextFill(Color.web("#777777"));
+
+        HBox ratingBox = new HBox(5, starsBox, votesLabel); // Conteneur pour les étoiles et le texte
+        ratingBox.setAlignment(Pos.CENTER_LEFT);
+
         Button detailsButton = new Button("Voir les détails");
         detailsButton.setOnAction(event -> openPublicationDetails(publication));
 
-        card.getChildren().addAll(titleText, descriptionText, detailsButton);
+        card.getChildren().addAll(titleText, descriptionText, ratingBox, detailsButton);
         return card;
+    }
+
+    private HBox createStarDisplay(float averageRating) {
+        HBox starBox = new HBox();
+        starBox.setSpacing(2);
+
+        for (int i = 1; i <= 5; i++) {
+            Label star = new Label("★");
+            star.setFont(Font.font("Arial", 16));
+
+            // Si l'étoile est dans la moyenne, elle sera dorée ; sinon, elle sera grise
+            if (i <= averageRating) {
+                star.setTextFill(Color.GOLD); // Étoile pleine : dorée
+            } else if (i - 1 < averageRating && i > averageRating) {
+                star.setTextFill(Color.LIGHTGOLDENRODYELLOW); // Étoile partiellement pleine
+            } else {
+                star.setTextFill(Color.GREY); // Étoile vide : grise
+            }
+
+            starBox.getChildren().add(star); // Ajouter l'étoile au conteneur
+        }
+
+        return starBox;
     }
     private void openPublicationDetails(Publication publication) {
         Stage modal = new Stage();
@@ -163,6 +204,39 @@ public class ToutesPublicationsController {
         descriptionText.setFill(Color.web("#333333"));
         descriptionText.setWrappingWidth(380);
 
+        // PARTIE DES ÉTOILES + AFFICHE DYNAMIQUE
+        PublicationRatingService ratingService = new PublicationRatingService();
+        Label averageRatingLabel = new Label();
+        HBox starBox = new HBox();
+        starBox.setSpacing(5);
+        starBox.setPadding(new Insets(10));
+
+        try {
+            // Récupérer la moyenne et les votes au démarrage
+            float averageRating = ratingService.getAverageRating(publication.getId());
+            int totalVotes = ratingService.getTotalVotes(publication.getId());
+            averageRatingLabel.setText("Note Moyenne : " +
+                    (averageRating > 0 ? String.format("%.2f", averageRating) : "Aucune") +
+                    " (" + totalVotes + " votes)"
+            );
+
+            // Pré-remplir les étoiles selon la note existante
+            int userRating = ratingService.getUserRating(currentUserId, publication.getId());
+            updateStars(starBox, userRating, ratingService, publication, averageRatingLabel);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // CONTENEUR DES ÉTOILES
+        Text starsTitle = new Text("Notez cette publication :");
+        starsTitle.setFont(Font.font("Arial", 14));
+        starsTitle.setFill(Color.GRAY);
+
+        VBox starsContainer = new VBox(starsTitle, starBox, averageRatingLabel);
+        starsContainer.setSpacing(5);
+        starsContainer.setPadding(new Insets(10));
+
         // Liste des commentaires avec un ScrollPane
         VBox commentsContainer = new VBox();
         commentsContainer.setSpacing(10);
@@ -201,12 +275,53 @@ public class ToutesPublicationsController {
         });
         addCommentBox.getChildren().addAll(commentField, addCommentButton);
 
-        modalContent.getChildren().addAll(header, titleText, typeText, descriptionText, commentsScrollPane, addCommentBox);
+        modalContent.getChildren().addAll(
+                header, titleText, typeText, descriptionText,
+                starsContainer, // ÉTOILES ET INFOS SUR LES NOTES
+                commentsScrollPane,
+                addCommentBox
+        );
 
         Scene scene = new Scene(modalContent, 500, 700);
         modal.setScene(scene);
         modal.showAndWait();
-    }private VBox createCommentBox(Comment comment, VBox commentsContainer) {
+    }
+
+    // MÉTHODE POUR METTRE À JOUR LES ÉTOILES
+    private void updateStars(HBox starBox, int currentRating, PublicationRatingService ratingService,
+                             Publication publication, Label averageRatingLabel) {
+        starBox.getChildren().clear();
+
+        for (int i = 1; i <= 5; i++) {
+            Label star = new Label("★");
+            star.setFont(Font.font("Arial", 26));
+            star.setTextFill(i <= currentRating ? Color.GOLD : Color.GREY); // Colore les étoiles selon la note
+
+            final int rating = i; // Note associée à cette étoile
+            star.setOnMouseClicked(event -> {
+                try {
+                    // Enregistrer la nouvelle note
+                    ratingService.addOrUpdateRating(currentUserId, publication.getId(), rating);
+
+                    // Met à jour les étoiles
+                    updateStars(starBox, rating, ratingService, publication, averageRatingLabel);
+
+                    // Actualiser la moyenne et le nombre de votes
+                    float newAverageRating = ratingService.getAverageRating(publication.getId());
+                    int newTotalVotes = ratingService.getTotalVotes(publication.getId());
+                    averageRatingLabel.setText("Note Moyenne : " +
+                            String.format("%.2f", newAverageRating) +
+                            " (" + newTotalVotes + " votes)"
+                    );
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            starBox.getChildren().add(star); // Ajouter l'étoile dans la boîte
+        }
+    }
+    private VBox createCommentBox(Comment comment, VBox commentsContainer) {
         VBox commentBox = new VBox();
         commentBox.setSpacing(5);
         commentBox.setPadding(new Insets(10));
