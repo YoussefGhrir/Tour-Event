@@ -42,6 +42,7 @@ public class DatabaseManager {
     // Création des tables si elles n'existent pas
     public void createTables() {
         try (Statement stmt = con.createStatement()) {
+
             // Création de la table User
             String createUserTable = """
             CREATE TABLE IF NOT EXISTS user (
@@ -112,6 +113,19 @@ public class DatabaseManager {
             );
             """;
             stmt.execute(createCommentTable);
+
+            // Table pour les réactions
+            stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS comment_reaction (" +
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "comment_id INT NOT NULL, " +
+                            "user_id INT NOT NULL, " +
+                            "reaction_type VARCHAR(50) NOT NULL, " +
+                            "UNIQUE (comment_id, user_id), " + // Contrainte d'unicité sur comment_id et user_id
+                            "FOREIGN KEY (comment_id) REFERENCES comment(id) ON DELETE CASCADE, " + // Lien avec la table comment
+                            "FOREIGN KEY (user_id) REFERENCES user(id_user) ON DELETE CASCADE" + // Lien avec la table user
+                            ")"
+            );
 
             System.out.println("Tables créées ou déjà existantes.");
         } catch (SQLException e) {
