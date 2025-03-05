@@ -19,10 +19,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import model.Comment;
-import model.CommentReaction;
-import model.Publication;
-import model.User;
+import model.*;
 import service.*;
 import utils.MyDatabse;
 import utils.SessionManager;
@@ -74,7 +71,19 @@ public class ToutesPublicationsController {
         if (refreshButton != null) {
             refreshButton.setOnAction(event -> refreshPublications());
         }
+        // Initialisation de la ComboBox avec les types de publications
+        initializeTypeComboBox();
+
+        // Ajout d'un écouteur pour le filtrage par type
+        typeComboBox.setOnAction(event -> filterPublicationsByType());
+
+        // Chargement des publications initiales
+        refreshPublications();
     }
+
+
+
+
 
     private void displayPublications(List<Publication> publications) {
         publicationsTilePane.getChildren().clear();
@@ -578,6 +587,7 @@ public class ToutesPublicationsController {
         editModal.show();
     }
 
+    @FXML
     private void refreshPublications() {
         try {
             System.out.println("Rafraîchissement des publications...");
@@ -623,5 +633,50 @@ public class ToutesPublicationsController {
         alert.setTitle(title);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    @FXML
+    private ComboBox<String> typeComboBox; // Liste déroulante pour les types de publications
+
+    @FXML
+    private void filterPublicationsByType() {
+        String selectedType = typeComboBox.getValue(); // Récupère le type sélectionné
+        if (selectedType != null) {
+            try {
+                int typeId = publicationService.getTypeId(PublicationType.valueOf(selectedType)); // Convertit en ID de type
+                List<Publication> filteredPublications = publicationService.filterByType(typeId); // Filtre les publications
+                displayPublications(filteredPublications); // Met à jour l'affichage
+            } catch (IllegalArgumentException e) {
+                System.err.println("Type de publication invalide : " + selectedType);
+            }
+        } else {
+            System.err.println("Aucun type sélectionné dans la ComboBox.");
+        }
+    }
+    @FXML
+    private ToggleGroup sortToggleGroup; // Groupe de boutons pour trier A-Z ou Z-A
+
+    @FXML
+    private void sortPublicationsByTitle() {
+        boolean ascending = ((RadioButton) sortToggleGroup.getSelectedToggle()).getId().equals("azRadioButton");
+        List<Publication> sortedPublications = publicationService.sortByTitle(ascending);
+        displayPublications(sortedPublications); // Met à jour l'affichage
+    }
+    @FXML
+    private TextField searchTextField; // Champ texte pour la recherche
+
+    @FXML
+    private void searchPublicationsByTitle() {
+        String searchTerm = searchTextField.getText();
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            List<Publication> searchResults = publicationService.searchByTitle(searchTerm);
+            displayPublications(searchResults); // Met à jour l'affichage
+        } else {
+            // Si aucun texte, afficher toutes les publications
+            refreshPublications();
+        }
+    }
+    private void initializeTypeComboBox() {
+        List<String> types = publicationService.getAllPublicationTypes(); // Implémenter cette méthode si nécessaire
+        typeComboBox.getItems().addAll(types);
     }
 }

@@ -193,4 +193,88 @@ public class PublicationService implements IService<Publication> {
 
         return publications;
     }
+    public List<Publication> filterByType(int typeId) {
+        List<Publication> publications = new ArrayList<>();
+        String sql = """
+        SELECT p.id, p.titre, p.description, p.image, p.user_id, p.date_creation, pt.nom_type
+        FROM publication p
+        JOIN publication_type pt ON p.type_id = pt.id_type
+        WHERE p.type_id = ?
+    """;
+
+        try (PreparedStatement statement = con.prepareStatement(sql)) {
+            statement.setInt(1, typeId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    publications.add(mapResultSetToPublication(rs));
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors du filtrage des publications par type : " + ex.getMessage());
+        }
+        return publications;
+    }
+
+    public List<Publication> searchByTitle(String title) {
+        List<Publication> publications = new ArrayList<>();
+        String sql = """
+        SELECT p.id, p.titre, p.description, p.image, p.user_id, p.date_creation, pt.nom_type
+        FROM publication p
+        JOIN publication_type pt ON p.type_id = pt.id_type
+        WHERE p.titre LIKE ?
+    """;
+
+        try (PreparedStatement statement = con.prepareStatement(sql)) {
+            statement.setString(1, "%" + title + "%");
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    publications.add(mapResultSetToPublication(rs));
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors de la recherche des publications par titre : " + ex.getMessage());
+        }
+        return publications;
+    }
+
+    public List<Publication> sortByTitle(boolean ascending) {
+        List<Publication> publications = new ArrayList<>();
+        String sql = """
+        SELECT p.id, p.titre, p.description, p.image, p.user_id, p.date_creation, pt.nom_type
+        FROM publication p
+        JOIN publication_type pt ON p.type_id = pt.id_type
+        ORDER BY p.titre %s
+    """.formatted(ascending ? "ASC" : "DESC");
+
+        try (PreparedStatement statement = con.prepareStatement(sql)) {
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    publications.add(mapResultSetToPublication(rs));
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors du tri des publications par titre : " + ex.getMessage());
+        }
+        return publications;
+    }
+
+    /**
+     * Récupère tous les types de publication disponibles.
+     * @return Une liste contenant les noms des types de publication.
+     */
+    public List<String> getAllPublicationTypes() {
+        List<String> types = new ArrayList<>();
+        String sql = "SELECT nom_type FROM publication_type";
+
+        try (PreparedStatement statement = con.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+
+            while (rs.next()) {
+                types.add(rs.getString("nom_type"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des types de publications : " + e.getMessage());
+        }
+        return types;
+    }
 }
