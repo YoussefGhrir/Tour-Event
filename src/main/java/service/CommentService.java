@@ -34,23 +34,26 @@ public class CommentService {
 
     // Récupérer les commentaires d'une publication
     public List<Comment> getCommentsByPublicationId(int publicationId) {
-        String query = "SELECT * FROM comment WHERE publication_id = ? ORDER BY date_posted ASC";
         List<Comment> comments = new ArrayList<>();
+        String query = "SELECT * FROM comment WHERE publication_id = ?";
+
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setInt(1, publicationId);
             ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
                 Comment comment = new Comment();
                 comment.setId(rs.getInt("id"));
-                comment.setPublicationId(rs.getInt("publication_id"));
-                comment.setUserId(rs.getInt("user_id"));
                 comment.setContent(rs.getString("content"));
+                comment.setUserId(rs.getInt("user_id"));
+                comment.setPublicationId(rs.getInt("publication_id"));
                 comment.setDatePosted(rs.getTimestamp("date_posted").toLocalDateTime());
                 comments.add(comment);
             }
-        } catch (SQLException ex) {
-            System.err.println("Erreur lors de la récupération des commentaires : " + ex.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des commentaires : " + e.getMessage());
         }
+
         return comments;
     }
 
@@ -204,4 +207,5 @@ public class CommentService {
         }
         return reportedComments;
     }
+
 }

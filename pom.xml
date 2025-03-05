@@ -20,6 +20,7 @@
             <id>openjfx</id>
             <url>https://maven.openjfx.io</url>
         </repository>
+
     </repositories>
 
     <dependencies>
@@ -42,6 +43,21 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
             <version>12.3.0</version> <!-- Include this if you are using JavaFX -->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cybozu.labs</groupId>
+            <artifactId>langdetect</artifactId>
+            <version>1.1-20120112</version>
         </dependency>
 
         <!-- JavaFX dependencies for version 21.0.2 -->
@@ -70,6 +86,7 @@
             <artifactId>gson</artifactId>
             <version>2.10</version>
         </dependency>
+        
     </dependencies>
 
     <build>

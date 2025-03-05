@@ -1,13 +1,11 @@
 package controllers;
 
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -16,20 +14,26 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.Comment;
 import model.CommentReaction;
 import model.Publication;
 import model.User;
-import service.CommentService;
-import service.PublicationRatingService;
-import service.PublicationService;
-import service.UserService;
+import service.*;
+import utils.MyDatabse;
 import utils.SessionManager;
 
 import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -43,15 +47,12 @@ public class ToutesPublicationsController {
     private final PublicationService publicationService = new PublicationService();
     private final UserService userService = new UserService();
     private final CommentService commentService = new CommentService();
+    private final ToxicityService toxicityService = new ToxicityService(); // Service de toxicité
     private final int currentUserId = SessionManager.getCurrentUserId();
-    // Variable pour stocker le commentaire actuellement affiché dans la modale
     private Comment currentReactionsModalComment;
-
-    // Conteneur de la liste des réactions dans la modale
     private VBox currentReactionsModalContent;
     @FXML
-    private Button refreshButton; // Bouton Rafraîchir
-
+    private Button refreshButton;
 
     @FXML
     public void initialize() {
@@ -70,7 +71,6 @@ public class ToutesPublicationsController {
             displayPublications(publications);
         }
 
-        // Action du bouton "Rafraîchir"
         if (refreshButton != null) {
             refreshButton.setOnAction(event -> refreshPublications());
         }
@@ -88,26 +88,41 @@ public class ToutesPublicationsController {
         VBox card = new VBox();
         card.setSpacing(10);
         card.setPadding(new Insets(15));
-        card.setStyle("-fx-background-color: #f9f9f9; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; " +
+                "-fx-border-radius: 12; " +
+                "-fx-background-radius: 12; " +
+                "-fx-border-color: #dddddd; " +
+                "-fx-border-width: 1; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
+
+        card.setOnMouseEntered(event -> {
+            card.setStyle("-fx-background-color: #f9f9f9; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);");
+        });
+        card.setOnMouseExited(event -> {
+            card.setStyle("-fx-background-color: #ffffff; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
+        });
 
         ImageView imageView = new ImageView();
         if (publication.getImage() != null) {
             Image image = new Image(new ByteArrayInputStream(publication.getImage()));
             imageView.setImage(image);
-            imageView.setFitWidth(200);
-            imageView.setFitHeight(150);
+            imageView.setFitWidth(150);
+            imageView.setFitHeight(100);
+            imageView.setPreserveRatio(true);
+            imageView.setStyle("-fx-border-radius: 8; -fx-background-radius: 8;");
             card.getChildren().add(imageView);
         }
 
         Text titleText = new Text(publication.getTitre());
-        titleText.setFont(Font.font("Arial", 18));
-        titleText.setFill(Color.web("#0078d7"));
+        titleText.setFont(Font.font("Roboto", FontWeight.BOLD, 18));
+        titleText.setFill(Color.web("#333333"));
 
         Text descriptionText = new Text(publication.getDescription());
-        descriptionText.setFont(Font.font("Arial", 14));
+        descriptionText.setFont(Font.font("Open Sans", 14));
         descriptionText.setFill(Color.web("#666666"));
 
-        // Gestion des notes avec étoiles
         PublicationRatingService ratingService = new PublicationRatingService();
         float averageRating = 0.0f;
         int totalVotes = 0;
@@ -119,20 +134,38 @@ public class ToutesPublicationsController {
             e.printStackTrace();
         }
 
-        // Création de l'affichage des étoiles
         HBox starsBox = createStarDisplay(averageRating);
 
         Label votesLabel = new Label(" (" + totalVotes + " votes)");
         votesLabel.setFont(Font.font("Arial", 12));
         votesLabel.setTextFill(Color.web("#777777"));
 
-        HBox ratingBox = new HBox(5, starsBox, votesLabel); // Conteneur pour les étoiles et le texte
+        HBox ratingBox = new HBox(5, starsBox, votesLabel);
         ratingBox.setAlignment(Pos.CENTER_LEFT);
 
         Button detailsButton = new Button("Voir les détails");
+        detailsButton.setStyle("-fx-background-color: #1877F2; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-padding: 8 15; " +
+                "-fx-border-radius: 8; " +
+                "-fx-background-radius: 8;");
+
+        detailsButton.setOnMouseEntered(event -> {
+            detailsButton.setStyle("-fx-background-color: #1565C0; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);");
+        });
+        detailsButton.setOnMouseExited(event -> {
+            detailsButton.setStyle("-fx-background-color: #1877F2; " +
+                    "-fx-effect: none;");
+        });
+
         detailsButton.setOnAction(event -> openPublicationDetails(publication));
 
-        card.getChildren().addAll(titleText, descriptionText, ratingBox, detailsButton);
+        VBox textContainer = new VBox(titleText, descriptionText);
+        textContainer.setSpacing(8);
+
+        card.getChildren().addAll(textContainer, ratingBox, detailsButton);
         return card;
     }
 
@@ -144,16 +177,15 @@ public class ToutesPublicationsController {
             Label star = new Label("★");
             star.setFont(Font.font("Arial", 16));
 
-            // Si l'étoile est dans la moyenne, elle sera dorée ; sinon, elle sera grise
             if (i <= averageRating) {
-                star.setTextFill(Color.GOLD); // Étoile pleine : dorée
+                star.setTextFill(Color.GOLD);
             } else if (i - 1 < averageRating && i > averageRating) {
-                star.setTextFill(Color.LIGHTGOLDENRODYELLOW); // Étoile partiellement pleine
+                star.setTextFill(Color.LIGHTGOLDENRODYELLOW);
             } else {
-                star.setTextFill(Color.GREY); // Étoile vide : grise
+                star.setTextFill(Color.GREY);
             }
 
-            starBox.getChildren().add(star); // Ajouter l'étoile au conteneur
+            starBox.getChildren().add(star);
         }
 
         return starBox;
@@ -167,45 +199,48 @@ public class ToutesPublicationsController {
         VBox modalContent = new VBox();
         modalContent.setSpacing(15);
         modalContent.setPadding(new Insets(20));
+        modalContent.setStyle("-fx-background-color: #f0f2f5; " +
+                "-fx-border-radius: 12; " +
+                "-fx-background-radius: 12;");
 
-        GridPane header = new GridPane();
-        header.setHgap(10);
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setStyle("-fx-padding: 10; " +
+                "-fx-background-color: #ffffff; " +
+                "-fx-border-radius: 8; " +
+                "-fx-background-radius: 8; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 5);");
 
         String username = getUserFullName(publication.getUserId());
 
-        Label userLabel = new Label("Utilisateur : " + username);
-        userLabel.setFont(Font.font("Arial", 14));
-        userLabel.setTextFill(Color.web("#555555"));
-        GridPane.setConstraints(userLabel, 0, 0);
+        Label userLabel = new Label(username);
+        userLabel.setFont(Font.font("Roboto", FontWeight.BOLD, 16));
+        userLabel.setTextFill(Color.web("#333333"));
 
-        Label dateLabel = new Label("Créé le : " + formatPublicationDate(publication.getDateCreation()));
-        dateLabel.setFont(Font.font("Arial", 14));
+        Label dateLabel = new Label(formatPublicationDate(publication.getDateCreation()));
+        dateLabel.setFont(Font.font("Open Sans", 12));
         dateLabel.setTextFill(Color.web("#777777"));
-        GridPane.setConstraints(dateLabel, 1, 0);
 
-        header.getChildren().addAll(userLabel, dateLabel);
+        VBox headerInfo = new VBox(userLabel, dateLabel);
+        header.getChildren().add(headerInfo);
 
         if (publication.getImage() != null) {
             ImageView imageView = new ImageView(new Image(new ByteArrayInputStream(publication.getImage())));
-            imageView.setFitWidth(300);
-            imageView.setFitHeight(200);
+            imageView.setFitWidth(400);
+            imageView.setFitHeight(250);
+            imageView.setStyle("-fx-border-radius: 8; -fx-background-radius: 8;");
             modalContent.getChildren().add(imageView);
         }
 
         Text titleText = new Text(publication.getTitre());
-        titleText.setFont(Font.font("Arial", 20));
-        titleText.setFill(Color.web("#0078d7"));
-
-        Text typeText = new Text("Type : " + publication.getType().name());
-        typeText.setFont(Font.font("Arial", 16));
-        typeText.setFill(Color.web("#555555"));
+        titleText.setFont(Font.font("Roboto", FontWeight.BOLD, 22));
+        titleText.setFill(Color.web("#333333"));
 
         Text descriptionText = new Text(publication.getDescription());
-        descriptionText.setFont(Font.font("Arial", 14));
+        descriptionText.setFont(Font.font("Open Sans", 14));
         descriptionText.setFill(Color.web("#333333"));
-        descriptionText.setWrappingWidth(380);
+        descriptionText.setWrappingWidth(550);
 
-        // PARTIE DES ÉTOILES + AFFICHE DYNAMIQUE
         PublicationRatingService ratingService = new PublicationRatingService();
         Label averageRatingLabel = new Label();
         HBox starBox = new HBox();
@@ -213,78 +248,84 @@ public class ToutesPublicationsController {
         starBox.setPadding(new Insets(10));
 
         try {
-            // Récupérer la moyenne et les votes au démarrage
             float averageRating = ratingService.getAverageRating(publication.getId());
             int totalVotes = ratingService.getTotalVotes(publication.getId());
             averageRatingLabel.setText("Note Moyenne : " +
                     (averageRating > 0 ? String.format("%.2f", averageRating) : "Aucune") +
-                    " (" + totalVotes + " votes)"
-            );
+                    " (" + totalVotes + " votes)");
 
-            // Pré-remplir les étoiles selon la note existante
             int userRating = ratingService.getUserRating(currentUserId, publication.getId());
             updateStars(starBox, userRating, ratingService, publication, averageRatingLabel);
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        // CONTENEUR DES ÉTOILES
         Text starsTitle = new Text("Notez cette publication :");
-        starsTitle.setFont(Font.font("Arial", 14));
+        starsTitle.setFont(Font.font("Roboto", FontWeight.BOLD, 14));
         starsTitle.setFill(Color.GRAY);
 
         VBox starsContainer = new VBox(starsTitle, starBox, averageRatingLabel);
         starsContainer.setSpacing(5);
         starsContainer.setPadding(new Insets(10));
 
-        // Liste des commentaires avec un ScrollPane
         VBox commentsContainer = new VBox();
         commentsContainer.setSpacing(10);
-        commentsContainer.setStyle("-fx-background-color: #f9f9f9; -fx-border-color: #d3d3d3; -fx-border-width: 1;");
-
-        // Charger les commentaires initiaux
+        commentsContainer.setStyle("-fx-background-color: #ffffff; " +
+                "-fx-border-radius: 8; " +
+                "-fx-padding: 10;");
+        commentsContainer.setPadding(new Insets(10));
         refreshCommentsInModal(commentsContainer, publication.getId());
 
-        // Wrapping commentsContainer dans un ScrollPane
         ScrollPane commentsScrollPane = new ScrollPane(commentsContainer);
         commentsScrollPane.setFitToWidth(true);
-        commentsScrollPane.setPrefHeight(300); // Hauteur limitée
-        commentsScrollPane.setStyle("-fx-background-color: #ffffff;");
+        commentsScrollPane.setPrefHeight(500);
+        commentsScrollPane.setStyle("-fx-background-color: transparent;");
 
-        // Ajouter un champ pour ajouter un commentaire
         HBox addCommentBox = new HBox(10);
         addCommentBox.setSpacing(10);
         addCommentBox.setPadding(new Insets(10));
+        addCommentBox.setStyle("-fx-background-color: #f0f2f5; -fx-border-radius: 20;");
         TextField commentField = new TextField();
-        commentField.setPromptText("Ajouter un commentaire...");
+        commentField.setPromptText("Écrivez un commentaire...");
+        commentField.setStyle("-fx-background-color: transparent;");
         Button addCommentButton = new Button("Publier");
+        addCommentButton.setStyle("-fx-background-color: #1877F2; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-padding: 8 15; " +
+                "-fx-border-radius: 8; " +
+                "-fx-background-radius: 8;");
+
+        addCommentButton.setOnMouseEntered(event -> {
+            addCommentButton.setStyle("-fx-background-color: #1565C0; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);");
+        });
+        addCommentButton.setOnMouseExited(event -> {
+            addCommentButton.setStyle("-fx-background-color: #1877F2; " +
+                    "-fx-effect: none;");
+        });
+
         addCommentButton.setOnAction(event -> {
             String content = commentField.getText().trim();
             if (!content.isEmpty()) {
-                Comment newComment = new Comment(publication.getId(), currentUserId, content);
-                commentService.addComment(newComment);
+                addCommentWithToxicityCheck(publication.getId(), content, commentsContainer);
                 commentField.clear();
-
-                // Rafraîchir les commentaires dans la modale
-                refreshCommentsInModal(commentsContainer, publication.getId());
             }
         });
         addCommentBox.getChildren().addAll(commentField, addCommentButton);
 
         modalContent.getChildren().addAll(
-                header, titleText, typeText, descriptionText,
-                starsContainer, // ÉTOILES ET INFOS SUR LES NOTES
+                header, titleText, descriptionText,
+                starsContainer,
                 commentsScrollPane,
                 addCommentBox
         );
 
-        Scene scene = new Scene(modalContent, 500, 700);
+        Scene scene = new Scene(modalContent, 650, 950);
         modal.setScene(scene);
         modal.showAndWait();
     }
 
-    // MÉTHODE POUR METTRE À JOUR LES ÉTOILES
     private void updateStars(HBox starBox, int currentRating, PublicationRatingService ratingService,
                              Publication publication, Label averageRatingLabel) {
         starBox.getChildren().clear();
@@ -292,18 +333,14 @@ public class ToutesPublicationsController {
         for (int i = 1; i <= 5; i++) {
             Label star = new Label("★");
             star.setFont(Font.font("Arial", 26));
-            star.setTextFill(i <= currentRating ? Color.GOLD : Color.GREY); // Colore les étoiles selon la note
+            star.setTextFill(i <= currentRating ? Color.GOLD : Color.GREY);
 
-            final int rating = i; // Note associée à cette étoile
+            final int rating = i;
             star.setOnMouseClicked(event -> {
                 try {
-                    // Enregistrer la nouvelle note
                     ratingService.addOrUpdateRating(currentUserId, publication.getId(), rating);
-
-                    // Met à jour les étoiles
                     updateStars(starBox, rating, ratingService, publication, averageRatingLabel);
 
-                    // Actualiser la moyenne et le nombre de votes
                     float newAverageRating = ratingService.getAverageRating(publication.getId());
                     int newTotalVotes = ratingService.getTotalVotes(publication.getId());
                     averageRatingLabel.setText("Note Moyenne : " +
@@ -315,40 +352,47 @@ public class ToutesPublicationsController {
                 }
             });
 
-            starBox.getChildren().add(star); // Ajouter l'étoile dans la boîte
+            starBox.getChildren().add(star);
         }
     }
+
+    private void refreshCommentsInModal(VBox commentsContainer, int publicationId) {
+        List<Comment> comments = commentService.getCommentsByPublicationId(publicationId);
+        commentsContainer.getChildren().clear();
+
+        for (Comment comment : comments) {
+            VBox commentBox = createCommentBox(comment, commentsContainer);
+            commentsContainer.getChildren().add(commentBox);
+            detectToxicityAsync(comment, commentBox);
+        }
+    }
+
     private VBox createCommentBox(Comment comment, VBox commentsContainer) {
         VBox commentBox = new VBox();
         commentBox.setSpacing(5);
         commentBox.setPadding(new Insets(10));
         commentBox.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
 
-        // Nom de l'utilisateur ayant publié le commentaire
         Label usernameLabel = new Label(getUserFullName(comment.getUserId()));
         usernameLabel.setFont(Font.font("Arial", 14));
         usernameLabel.setTextFill(Color.DARKBLUE);
 
-        // Date du commentaire
         Label commentDate = new Label(formatPublicationDate(comment.getDatePosted()));
         commentDate.setFont(Font.font("Arial", 10));
         commentDate.setTextFill(Color.GRAY);
 
-        // Contenu du commentaire
         Text commentContent = new Text(comment.getContent());
         commentContent.setFont(Font.font("Arial", 12));
-        commentContent.setWrappingWidth(500); // Ajuster la largeur maximale
+        commentContent.setWrappingWidth(500);
 
-        // Bouton Signaler
         Button reportButton = new Button("Signaler");
         reportButton.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;");
         reportButton.setOnAction(event -> openReportModal(comment));
 
-        // Réactions existantes (totals uniquement)
-        Map<String, Integer> reactions = commentService.getReactionsByCommentId(comment.getId()); // Charge le total des réactions
         HBox reactionTotalsBox = new HBox();
         reactionTotalsBox.setSpacing(10);
 
+        Map<String, Integer> reactions = commentService.getReactionsByCommentId(comment.getId());
         if (!reactions.isEmpty()) {
             for (Map.Entry<String, Integer> reaction : reactions.entrySet()) {
                 Label reactionLabel = new Label(reaction.getKey() + ": " + reaction.getValue());
@@ -358,7 +402,6 @@ public class ToutesPublicationsController {
             }
         }
 
-        // Ajouter des boutons de réaction (émojis)
         HBox reactionButtons = new HBox(10);
         reactionButtons.setPadding(new Insets(5, 0, 0, 0));
 
@@ -369,41 +412,29 @@ public class ToutesPublicationsController {
 
         reactionButtons.getChildren().addAll(likeButton, hahaButton, sadButton, angryButton);
 
-        // Actions accessibles à l'auteur du commentaire : Modifier et Supprimer
         if (comment.getUserId() == currentUserId) {
             HBox userActionsBox = new HBox();
             userActionsBox.setSpacing(10);
 
-            // Bouton Modifier
             Button editButton = new Button("Modifier");
             editButton.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black;");
-            editButton.setOnAction(event -> {
-                // Ouvrir une fenêtre modale pour modifier le commentaire
-                openEditCommentModal(comment, commentContent);
-            });
+            editButton.setOnAction(event -> openEditCommentModal(comment, commentContent));
 
-            // Bouton Supprimer
             Button deleteButton = new Button("Supprimer");
             deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
             deleteButton.setOnAction(event -> {
-                // Supprimer le commentaire via le service
                 commentService.deleteComment(comment.getId());
-                // Supprimer dynamiquement de l'interface
                 commentsContainer.getChildren().remove(commentBox);
             });
 
-            // Ajouter les boutons Modifier et Supprimer
             userActionsBox.getChildren().addAll(editButton, deleteButton);
-
-            // Ajouter les actions des utilisateurs à la boîte principale
             reactionButtons.getChildren().add(userActionsBox);
         }
 
-        // Ajouter tous les éléments dans le conteneur de commentaire
         commentBox.getChildren().addAll(usernameLabel, commentDate, commentContent, reactionTotalsBox, reactionButtons, reportButton);
-
         return commentBox;
     }
+
     private void openReportModal(Comment comment) {
         Stage reportModal = new Stage();
         reportModal.initModality(Modality.APPLICATION_MODAL);
@@ -423,22 +454,18 @@ public class ToutesPublicationsController {
 
         Button submitButton = new Button("Envoyer");
         submitButton.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-font-weight: bold;");
-
         submitButton.setOnAction(event -> {
-            String reason = reasonField.getText().trim();
-            if (!reason.isEmpty()) {
-                try {
-                    // Signalement du commentaire via le service
-                    commentService.reportComment(comment.getId(), reason);
-                    System.out.println("Commentaire signalé : " + reason);
-
-                    // Fermer la fenêtre modale après le signalement
-                    reportModal.close();
-                } catch (SQLException e) {
-                    System.err.println("Erreur lors du signalement : " + e.getMessage());
-                }
-            }
-        });
+                    String reason = reasonField.getText().trim();
+                    if (!reason.isEmpty()) {
+                        try {
+                            commentService.reportComment(comment.getId(), reason);
+                            System.out.println("Commentaire signalé : " + reason);
+                            reportModal.close();
+                        } catch (SQLException e) {
+                            System.err.println("Erreur lors du signalement : " + e.getMessage());
+                        }
+                    }
+                });
 
         modalContent.getChildren().addAll(instructionLabel, reasonField, submitButton);
 
@@ -446,22 +473,15 @@ public class ToutesPublicationsController {
         reportModal.setScene(scene);
         reportModal.showAndWait();
     }
+
     private Button createReactionButton(String emoji, String reactionType, Comment comment, HBox reactionTotalsBox) {
         Button reactionButton = new Button(emoji);
         reactionButton.setStyle("-fx-font-size: 14px; -fx-padding: 5px 10px;");
 
         reactionButton.setOnAction(event -> {
             try {
-                // Ajouter ou mettre à jour la réaction de l'utilisateur
                 commentService.addReaction(comment.getId(), currentUserId, reactionType);
-
-                // Rafraîchir dynamiquement les totaux de réactions
                 refreshReactionTotals(comment.getId(), reactionTotalsBox);
-
-                // Si une modale est ouverte pour ce commentaire, rafraîchir son contenu
-                if (currentReactionsModalComment != null && currentReactionsModalComment.getId() == comment.getId()) {
-                    refreshReactionsContainer(currentReactionsModalContent, comment);
-                }
             } catch (Exception e) {
                 System.err.println("Erreur lors de l'ajout de la réaction : " + e.getMessage());
             }
@@ -469,51 +489,44 @@ public class ToutesPublicationsController {
 
         return reactionButton;
     }
-    /**
-     * Met à jour dynamiquement les totaux des réactions dans le commentaire.
-     *
-     * @param commentId L'identifiant du commentaire à actualiser.
-     * @param reactionTotalsBox Le conteneur (HBox) affichant les totaux des réactions.
-     */
-    private void refreshReactionTotals(int commentId, HBox reactionTotalsBox) {
-        // Nettoyer les anciens totaux
-        reactionTotalsBox.getChildren().clear();
 
-        // Récupérer les nouveaux totaux des réactions depuis le backend
+    private void refreshReactionTotals(int commentId, HBox reactionTotalsBox) {
+        reactionTotalsBox.getChildren().clear();
         Map<String, Integer> reactions = commentService.getReactionsByCommentId(commentId);
 
-        // Réafficher les nouveaux totaux avec des labels
         if (!reactions.isEmpty()) {
             for (Map.Entry<String, Integer> reaction : reactions.entrySet()) {
                 Label reactionLabel = new Label(reaction.getKey() + ": " + reaction.getValue());
-                reactionLabel.setFont(Font.font("Arial", 12)); // Style du texte
-                reactionLabel.setTextFill(Color.GRAY); // Couleur du texte
-                reactionTotalsBox.getChildren().add(reactionLabel); // Ajouter au conteneur
+                reactionLabel.setFont(Font.font("Arial", 12));
+                reactionLabel.setTextFill(Color.GRAY);
+                reactionTotalsBox.getChildren().add(reactionLabel);
             }
         }
     }
-    private void refreshReactionsContainer(VBox reactionsContainer, Comment comment) {
-        reactionsContainer.getChildren().clear(); // Nettoyer le conteneur avant le rechargement
-
-        // Charger toutes les réactions pour ce commentaire
-        List<CommentReaction> reactionsWithUsers = commentService.getReactionsWithUsers(comment.getId());
-
-        // Ajouter chaque utilisateur ayant réagi
-        for (CommentReaction reaction : reactionsWithUsers) {
-            String userName = getUserFullName(reaction.getUserId());
-            Label reactionLabel = new Label(userName + " a réagi avec " + reaction.getReactionType());
-            reactionLabel.setFont(Font.font("Arial", 12));
-            reactionsContainer.getChildren().add(reactionLabel);
+    private void detectToxicityAsync(Comment comment, VBox commentBox) {
+        if (comment == null || comment.getContent() == null || comment.getContent().trim().isEmpty()) {
+            System.out.println("Commentaire invalide détecté pour l'analyse de toxicité.");
+            return;
         }
-    }
 
-    /**
-     * Rafraîchir les commentaires d'une publication (utilisé après une réaction).
-     */
-    private void refreshComments() {
-        publicationsTilePane.getChildren().clear();
-        List<Publication> publications = publicationService.getAllPublications(currentUserId);
-        displayPublications(publications);
+        PauseTransition pause = new PauseTransition(Duration.seconds(3)); // 3 secondes
+        pause.setOnFinished(event -> {
+            try {
+                double toxicityScore = toxicityService.analyzeToxicity(comment.getContent());
+                System.out.println("Score de toxicité pour \"" + comment.getContent() + "\" : " + toxicityScore);
+
+                if (toxicityScore >= 0.8) { // Seuil augmenté à 0.8
+                    commentBox.setStyle("-fx-background-color: #ffcccc;");
+                    Label toxicLabel = new Label("Ce commentaire a été masqué pour contenu inapproprié.");
+                    toxicLabel.setStyle("-fx-text-fill: red; -fx-font-style: italic;");
+                    commentBox.getChildren().clear();
+                    commentBox.getChildren().add(toxicLabel);
+                }
+            } catch (Exception e) {
+                System.err.println("Erreur lors de la détection de la toxicité : " + e.getMessage());
+            }
+        });
+        pause.play();
     }
     private String getUserFullName(int userId) {
         try {
@@ -535,70 +548,80 @@ public class ToutesPublicationsController {
     }
 
     private void openEditCommentModal(Comment comment, Text commentContent) {
-        // Créer une fenêtre modale
         Stage editModal = new Stage();
         editModal.initModality(Modality.APPLICATION_MODAL);
         editModal.setTitle("Modifier le commentaire");
 
-        // Conteneur principal de la modale
         VBox modalLayout = new VBox();
         modalLayout.setSpacing(10);
         modalLayout.setPadding(new Insets(10));
 
-        // Champ de saisie pré-rempli avec le contenu actuel du commentaire
         TextField commentField = new TextField(comment.getContent());
 
-        // Bouton pour enregistrer les modifications
         Button saveButton = new Button("Enregistrer");
         saveButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white;");
 
         saveButton.setOnAction(event -> {
             String updatedContent = commentField.getText().trim();
             if (!updatedContent.isEmpty()) {
-                // Mettre à jour dans l'objet et dans la base de données
                 comment.setContent(updatedContent);
                 commentService.updateComment(comment);
-
-                // Mettre à jour dynamiquement le texte dans l'interface
                 commentContent.setText(updatedContent);
-
-                // Fermer la fenêtre modale
                 editModal.close();
             }
         });
 
         modalLayout.getChildren().addAll(new Label("Modifier le commentaire :"), commentField, saveButton);
 
-        // Afficher la fenêtre
         Scene modalScene = new Scene(modalLayout, 300, 150);
         editModal.setScene(modalScene);
         editModal.show();
     }
+
     private void refreshPublications() {
         try {
             System.out.println("Rafraîchissement des publications...");
             List<Publication> updatedPublications = publicationService.getAllPublications(currentUserId);
 
-            // Vérifiez si des publications sont disponibles
             if (updatedPublications.isEmpty()) {
                 publicationsTilePane.getChildren().clear();
                 Label emptyMessage = new Label("Aucune nouvelle publication disponible.");
                 emptyMessage.setStyle("-fx-font-size: 16px; -fx-text-fill: #757575; -fx-font-weight: bold;");
                 publicationsTilePane.getChildren().add(emptyMessage);
             } else {
-                displayPublications(updatedPublications); // Réutilisation de la méthode existante
+                displayPublications(updatedPublications);
             }
         } catch (Exception e) {
             System.err.println("Erreur de rafraîchissement : " + e.getMessage());
         }
     }
-    private void refreshCommentsInModal(VBox commentsContainer, int publicationId) {
-        commentsContainer.getChildren().clear(); // Nettoyer le conteneur des commentaires existants
-        List<Comment> comments = commentService.getCommentsByPublicationId(publicationId); // Récupérer les nouveaux commentaires
-        for (Comment comment : comments) {
-            VBox commentBox = createCommentBox(comment, commentsContainer); // Recréer chaque commentaire
-            commentsContainer.getChildren().add(commentBox);
+    private void addCommentWithToxicityCheck(int publicationId, String commentText, VBox commentsContainer) {
+        if (commentText == null || commentText.trim().isEmpty()) {
+            showAlert("Erreur", "Veuillez écrire un commentaire avant de soumettre.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        try {
+            double toxicityScore = toxicityService.analyzeToxicity(commentText);
+
+            // Ajustement du seuil de toxicité
+            if (toxicityScore >= 0.8) { // Seuil augmenté à 0.8
+                showAlert("Commentaire Rejeté", "Votre commentaire est considéré comme toxique et ne peut pas être ajouté.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            Comment newComment = new Comment(publicationId, currentUserId, commentText);
+            commentService.addComment(newComment);
+            refreshCommentsInModal(commentsContainer, publicationId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Une erreur est survenue lors de l'ajout du commentaire : " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-
+    private void showAlert(String title, String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }
