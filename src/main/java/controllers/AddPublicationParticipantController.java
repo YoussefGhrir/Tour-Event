@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import model.Publication;
 import model.PublicationType;
 import model.User;
+import service.HuggingFaceService;
 import service.PublicationService;
 import utils.SessionManager;
 
@@ -211,5 +212,22 @@ public class AddPublicationParticipantController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+    @FXML
+    private void handleGenerateTitle() {
+        String description = descriptionField.getText();
+        if (description != null && !description.isEmpty()) {
+            System.out.println("Description saisie : " + description); // Log de la description
+
+            HuggingFaceService huggingFaceService = new HuggingFaceService();
+            String generatedTitle = huggingFaceService.generateTitle(description);
+
+            System.out.println("Titre généré : " + generatedTitle); // Log du titre généré
+
+            titreField.setText(generatedTitle); // Remplir le champ de titre
+        } else {
+            System.err.println("Erreur : La description est vide."); // Log d'erreur
+            showAlert("Erreur", "Description vide", "Veuillez saisir une description pour générer un titre.");
+        }
     }
 }

@@ -1,47 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #ddffe0);" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AdminDashboard">
+<AnchorPane prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #ddffe0);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AdminDashboard">
     <children>
         <VBox prefHeight="600.0" prefWidth="250.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
             <ImageView fitHeight="100.0" fitWidth="200.0" preserveRatio="true">
                 <VBox.margin>
-                    <Insets top="20.0" bottom="20.0" />
+                    <Insets bottom="20.0" top="20.0" />
                 </VBox.margin>
                 <image>
                     <Image url="@/images/logo.png" />
                 </image>
             </ImageView>
 
-            <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 20 20;" text="Dashboard Admin" />
+            <Label prefHeight="50.0" prefWidth="229.0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 20 20;" text="Dashboard    Admin" />
 
             <VBox spacing="10" style="-fx-padding: 20;">
-                <Button fx:id="dashboardButton" onAction="#handleDashboard" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
-                        text="Dashboard" />
+                <Button fx:id="dashboardButton" onAction="#handleDashboard" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Dashboard" />
 
-                <Button fx:id="viewUsersButton" onAction="#handleViewUsers" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
-                        text="Liste des utilisateurs" />
+                <Button fx:id="viewUsersButton" onAction="#handleViewUsers" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;" text="Liste des utilisateurs" />
 
-                <Button fx:id="addUserButton" onAction="#handleAddUser" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
-                        text="Ajouter utilisateur" />
+                <Button fx:id="addUserButton" onAction="#handleAddUser" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;" text="Ajouter utilisateur" />
 
-                <Button fx:id="viewFeedbackButton" onAction="#handleViewFeedback" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
-                        text="Liste des Feedbacks" />
-                <Button fx:id="viewReportedCommentsButton" onAction="#handleViewReportedComments" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;"
-                        text="Commentaires signalés" />
+                <Button fx:id="viewFeedbackButton" onAction="#handleViewFeedback" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;" text="Liste des Feedbacks" />
+                <Button fx:id="viewReportedCommentsButton" onAction="#handleViewReportedComments" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-background-radius: 5; -fx-border-color: #e0e0e0; -fx-border-radius: 5;" text="Commentaires signalés" />
             </VBox>
 
             <VBox spacing="10" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
@@ -50,13 +36,9 @@
                 </VBox.margin>
 
                 <!-- Bouton "Ajouter une publication" -->
-                <Button fx:id="addPublicationButton" onAction="#handleAddPublication" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
-                        text="Ajouter une publication" />
+                <Button fx:id="addPublicationButton" onAction="#handleAddPublication" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Ajouter une publication" />
 
-                <Button fx:id="logoutButton" onAction="#handleLogout" prefHeight="40.0" prefWidth="210.0"
-                        style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
-                        text="Déconnexion" />
+                <Button fx:id="logoutButton" onAction="#handleLogout" prefHeight="40.0" prefWidth="210.0" style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="Déconnexion" />
             </VBox>
         </VBox>
 

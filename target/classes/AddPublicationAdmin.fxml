@@ -32,7 +32,7 @@
                     <Label text="Description" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
                     <TextArea fx:id="descriptionField" promptText="Entrez la description de la publication" prefHeight="80" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0; -fx-padding: 8;"/>
                     <Label fx:id="descriptionErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
-
+                    <Button text="Générer le titre" onAction="#handleGenerateTitle" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 20;"/>
                     <!-- Type de publication -->
                     <Label text="Type de publication" style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
                     <ComboBox fx:id="typeComboBox" promptText="Sélectionnez le type de publication" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #e0e0e0;"/>
